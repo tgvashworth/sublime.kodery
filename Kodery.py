@@ -27,8 +27,9 @@ class Kodery(sublime_plugin.EventListener):
     self.fragments = []
     for snippet in snippets:
       for fragment in snippet['fragments']:
+        fragment['snippet'] = snippet
         self.fragments.append(fragment)
 
   def on_query_completions(self, view, prefix, locations):
     # Find the matching fragments and pass them back
-    return [(fragment['name'], fragment['body']) for fragment in self.fragments if fragment['name'].startswith(prefix)]
+    return [(fragment['name'] + '\t' + fragment['snippet']['name'], fragment['body']) for fragment in self.fragments if fragment['name'].startswith(prefix)]
