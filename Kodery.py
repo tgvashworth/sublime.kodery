@@ -7,6 +7,15 @@ kodery_url = "http://api.kodery.com/me/snippets?access_token="
 
 class Kodery(sublime_plugin.EventListener):
   def __init__(self):
+    self.reload()
+
+  def on_load(self, view):
+    self.reload()
+
+  def on_post_save(self, view):
+    self.reload()
+
+  def reload(self):
     # Load the current settings
     settings = sublime.load_settings("Preferences.sublime-settings")
     kodery = settings.get('kodery', {})
@@ -27,9 +36,16 @@ class Kodery(sublime_plugin.EventListener):
     self.fragments = []
     for snippet in snippets:
       for fragment in snippet['fragments']:
+        if not fragment['name'] and len(snippet['fragments']) == 1:
+          fragment['name'] = snippet['name']
         fragment['snippet'] = snippet
         self.fragments.append(fragment)
 
   def on_query_completions(self, view, prefix, locations):
     # Find the matching fragments and pass them back
-    return [(fragment['name'] + '\t' + fragment['snippet']['name'], fragment['body']) for fragment in self.fragments if fragment['name'].startswith(prefix)]
+    fragments = []
+    for fragment in self.fragments:
+      if fragment['name'].lower().startswith(prefix.lower()):
+        trigger = fragment['name'] + '\t' + fragment['snippet']['name']
+        fragments.append((trigger, fragment['body']))
+    return fragments
