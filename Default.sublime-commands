@@ -1,0 +1,6 @@
+[
+    {
+        "caption": "Kodery: Reload Your Kodery Snippets",
+        "command": "reload_kodery_snippets"
+    }
+]

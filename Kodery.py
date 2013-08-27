@@ -6,10 +6,12 @@ from urllib import urlopen
 kodery_url = "http://api.kodery.com/me/snippets?access_token="
 
 class Kodery(sublime_plugin.EventListener):
-  def __init__(self):
-    self.reload()
+  fragments = []
 
-  def reload(self):
+  @staticmethod
+  def reload():
+    sublime.status_message('Reloading Kodery snippets...')
+
     # Load the current settings
     settings = sublime.load_settings("Preferences.sublime-settings")
     kodery = settings.get('kodery', {})
@@ -27,19 +29,29 @@ class Kodery(sublime_plugin.EventListener):
       return
 
     # Build a list of fragments
-    self.fragments = []
+    fragments = []
     for snippet in snippets:
       for fragment in snippet['fragments']:
         if not fragment['name'] and len(snippet['fragments']) == 1:
           fragment['name'] = snippet['name']
         fragment['snippet'] = snippet
-        self.fragments.append(fragment)
+        fragments.append(fragment)
+    Kodery.fragments = fragments
+
+    sublime.status_message('Kodery snippets reloaded.')
+
+  def __init__(self):
+    Kodery.reload()
 
   def on_query_completions(self, view, prefix, locations):
     # Find the matching fragments and pass them back
     fragments = []
-    for fragment in self.fragments:
+    for fragment in Kodery.fragments:
       if fragment['name'].lower().startswith(prefix.lower()):
         trigger = fragment['name'] + '\t' + fragment['snippet']['name']
         fragments.append((trigger, fragment['body']))
     return fragments
+
+class ReloadKoderySnippetsCommand(sublime_plugin.WindowCommand):
+  def run(self):
+    Kodery.reload()
