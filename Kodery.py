@@ -9,12 +9,6 @@ class Kodery(sublime_plugin.EventListener):
   def __init__(self):
     self.reload()
 
-  def on_load(self, view):
-    self.reload()
-
-  def on_post_save(self, view):
-    self.reload()
-
   def reload(self):
     # Load the current settings
     settings = sublime.load_settings("Preferences.sublime-settings")
