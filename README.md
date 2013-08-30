@@ -33,7 +33,7 @@ If you don't, and you get an error, [tweet me](http://twitter.com/phuunet).
 
 ## Gotchas
 
-Sublime supports a `$` syntax for snippet replacement syntax, which mean it'll try to replace your PHP variables and jQuery plugins. We're working on this, but, for now, stick a `\` before the important `$` signs in your snippets.
+Sublime supports a `$` syntax for snippet replacement, which mean it'll try to replace your PHP variables and jQuery plugins. We're working on this, but, for now, stick a `\` before the important `$` signs in your snippets.
 
 ## License
 
