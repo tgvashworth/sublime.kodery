@@ -29,6 +29,9 @@ class KoderyApiCall(threading.Thread):
     sublime.error_message(err)
 
 class Kodery(sublime_plugin.EventListener):
+  def __init__(self):
+    Kodery.reload()
+
   url = "http://api.kodery.com/me/snippets?source=sublime&access_token="
   completions = []
 
@@ -97,9 +100,6 @@ class Kodery(sublime_plugin.EventListener):
 
     # Wait for the thread to be finished
     Kodery.wait_for_thread(thread, Kodery.thread_finished)
-
-  def __init__(self):
-    Kodery.reload()
 
   def on_query_completions(self, view, prefix, locations):
     # Find the matching completions and pass them back
