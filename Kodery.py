@@ -1,31 +1,45 @@
 import sublime, sublime_plugin
+import threading
 
 import json
-from urllib import urlopen
+import urllib2
 
+class KoderyApiCall(threading.Thread):
+  def __init__(self, url):
+    threading.Thread.__init__(self)
+    self.url = url
+    self.result = None
+
+  def run(self):
+    # Hit the Kodery API, and hope nothing goes wrong!
+    try:
+      self.result = json.loads(urllib2.urlopen(self.url).read())
+      return
+    # Well, ok, handle some errors.
+    except (urllib2.HTTPError) as (e):
+      err = '%s encountered a %s HTTP Error when contacting the API. Sorry.' % (__name__, str(e.code))
+    except (urllib2.URLError) as (e):
+      err = '%s encountered an error (%s) when contacting the Kodery API. Sorry.' % (str(e.reason))
+    except IOError:
+      err = 'Your Kodery token is not valid. Generate a new one at account.kodery.com.'
+    else:
+      err = 'Something went wrong while reloading your Kodery snippets. Sorry.'
+
+    # Tell the user
+    sublime.error_message(err)
 
 class Kodery(sublime_plugin.EventListener):
-  url = "http://api.kodery.com/me/snippets?access_token="
+  url = "http://api.kodery.com/me/snippets?source=sublime&access_token="
   completions = []
 
   @staticmethod
-  def reload():
-    sublime.status_message('Reloading Kodery snippets...')
-
-    # Load the current settings
-    settings = sublime.load_settings("Preferences.sublime-settings").get('kodery', {})
-
-    # If the token is missing, warn and quit.
-    if 'token' not in settings:
-      sublime.status_message('You are missing a Kodery token in your Sublime preferences.')
+  def thread_finished(thread):
+    # Thread finished running, but was it successful?
+    if thread.result == None:
       return
 
-    # Try to load the snippets, and warn if something goes wrong
-    try:
-      snippets = json.loads(urlopen(Kodery.url + settings.get('token', "")).read())
-    except IOError:
-      sublime.status_message('Your Kodery token is not valid. Generate a new one at account.kodery.com.')
-      return
+    # Grab out that result
+    snippets = thread.result
 
     # Build a list of fragments
     completions = []
@@ -55,6 +69,34 @@ class Kodery(sublime_plugin.EventListener):
     Kodery.completions = completions
 
     sublime.status_message('Your Kodery were snippets reloaded.')
+
+  @staticmethod
+  def wait_for_thread(thread, done):
+    # Check if the thread is still going. If it is, wait 100ms then try again
+    if thread.is_alive():
+      sublime.set_timeout(lambda: Kodery.wait_for_thread(thread, done), 100)
+      return
+    # Ooh, it is! Call the done callback.
+    done(thread)
+
+  @staticmethod
+  def reload():
+    sublime.status_message('Reloading Kodery snippets...')
+
+    # Load the current settings
+    settings = sublime.load_settings("Preferences.sublime-settings").get('kodery', {})
+
+    # If the token is missing, warn and quit.
+    if 'token' not in settings:
+      sublime.status_message('You are missing a Kodery token in your Sublime preferences.')
+      return
+
+    # Try to load the snippets in a thread
+    thread = KoderyApiCall(Kodery.url + settings.get('token', ""))
+    thread.start()
+
+    # Wait for the thread to be finished
+    Kodery.wait_for_thread(thread, Kodery.thread_finished)
 
   def __init__(self):
     Kodery.reload()
