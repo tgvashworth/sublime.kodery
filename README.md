@@ -4,7 +4,7 @@
 
 ## Install
 
-Clone the repository into your Sublime Packages folder, or download a zip. On OSX, that's `~/Library/Application Support/Sublime Text 2/Packages/`.
+Clone the repository into your Sublime Packages folder, or [download a zip](/releases). On OSX, that's `~/Library/Application Support/Sublime Text 2/Packages/`.
 
 
 ```
