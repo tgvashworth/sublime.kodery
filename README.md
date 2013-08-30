@@ -1,5 +1,7 @@
 # Kodery for Sublime Text
 
+![How to](http://f.cl.ly/items/3y1b0D3o1R1C261X0Z3H/kodery-sublime.gif)
+
 **Note:** This plugin is in the early stages of development and may be unstable or cause Sublime Text to be slow or crash entirely. You have been warned.
 
 ## Install
