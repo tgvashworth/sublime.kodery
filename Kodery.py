@@ -1,8 +1,15 @@
+#!/usr/bin/python
+
 import sublime, sublime_plugin
 import threading
 
 import json
 import urllib2
+
+def make_name(str, length=10):
+  if len(str) > length:
+    str = str[0:length]
+  return str
 
 class KoderyApiCall(threading.Thread):
   def __init__(self, url):
@@ -56,15 +63,14 @@ class Kodery(sublime_plugin.EventListener):
 
       # Add individual fragments as completions
       for fragment in snippet['fragments']:
-        if not fragment['name']:
-          if len(snippet['fragments']) == 1:
-            fragment['name'] = snippet['name']
-          else:
-            continue
+        prefix = ''
+        name = make_name(snippet['name'], 17)
+        if name:
+          prefix = name + ' > '
         # Append the completion
         completions.append({
-          'name': fragment['name'],
-          'description': snippet['name'],
+          'name': prefix + make_name(fragment['name'], 22),
+          'description': '',
           'body': fragment['body']
         })
 
@@ -105,9 +111,8 @@ class Kodery(sublime_plugin.EventListener):
     # Find the matching completions and pass them back
     completions = []
     for completion in Kodery.completions:
-      if completion['name'].lower().startswith(prefix.lower()):
-        trigger = completion['name'] + '\t' + completion['description']
-        completions.append((trigger, completion['body']))
+      trigger = completion['name'] + '\t' + completion['description']
+      completions.append((trigger, completion['body']))
     return completions
 
 class ReloadKoderySnippetsCommand(sublime_plugin.WindowCommand):
