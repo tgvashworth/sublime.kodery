@@ -6,14 +6,14 @@
 
 ## Install
 
-Clone the repository into your Sublime Packages folder, or [download a zip](https://github.com/phuu/sublime.kodery/releases). On OSX, that's `~/Library/Application Support/Sublime Text 2/Packages/`.
+Use Sublime Package Control – search for Kodery.
+
+Or, clone the repository into your Sublime Packages folder, or [download a zip](https://github.com/phuu/sublime.kodery/releases). On OSX, that's `~/Library/Application Support/Sublime Text 2/Packages/`.
 
 
 ```
 git clone https://github.com/phuu/sublime.kodery.git
 ```
-
-We'll be on the Sublime Package Control soon.
 
 ## Usage
 
